@@ -1,21 +1,21 @@
-﻿using Google.Cloud.Firestore;
-using SalesMicroservice.Interfaces;
+﻿using DadaRepositories.Interfaces;
+using DadaRepositories.Utilities;
+using Google.Cloud.Firestore;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
-namespace SalesMicroservice.Repositories
+namespace DadaRepositories
 {
-    public class BaseRepository<T> : IBaseRepository<T>
+    public class FirestoreRepository : IBaseRepository
     {
-        //private readonly Collection _collection;
+        private readonly Collection _collection;
         public FirestoreDb _firestoreDb;
 
-        public BaseRepository(/*Collection collection*/)
+        public FirestoreRepository(Collection collection)
         {
             // This should live in the appsetting file and injected - This is just an example.
-            //_collection = collection;
+            _collection = collection;
             var filepath = @"C:\Users\PieterLi\Downloads\test-6a89e-firebase-adminsdk-f41k9-5d045d5ead.json";
             Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", filepath);
             _firestoreDb = FirestoreDb.Create("test-6a89e");
@@ -25,7 +25,7 @@ namespace SalesMicroservice.Repositories
         /// <inheritdoc />
         public async Task<List<T>> GetAllAsync<T>() where T : IBaseFirestoreData
         {
-            Query query = _firestoreDb.Collection(/*_collection.ToString()*/);
+            Query query = _firestoreDb.Collection(_collection.ToString());
             var querySnapshot = await query.GetSnapshotAsync();
             var list = new List<T>();
             foreach (var documentSnapshot in querySnapshot.Documents)
@@ -41,15 +41,15 @@ namespace SalesMicroservice.Repositories
         }
 
         /// <inheritdoc />
-        public async Task<object> GetAsync<T>(T entity) where T : IBaseFirestoreData
+        public async Task<object> GetAsync<T>(string id) where T : IBaseFirestoreData
         {
-            var docRef = _firestoreDb.Collection(_collection.ToString()).Document(entity.Id);
+            var docRef = _firestoreDb.Collection(_collection.ToString()).Document(id);
             var snapshot = await docRef.GetSnapshotAsync();
             if (snapshot.Exists)
             {
-                var usr = snapshot.ConvertTo<T>();
-                usr.Id = snapshot.Id;
-                return usr;
+                var entity = snapshot.ConvertTo<T>();
+                entity.Id = snapshot.Id;
+                return entity;
             }
 
             return null;

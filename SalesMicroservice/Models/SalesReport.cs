@@ -1,10 +1,9 @@
-﻿using Google.Cloud.Firestore;
-using SalesMicroservice.Interfaces;
+﻿using DadaRepositories.Interfaces;
 using System.Collections.Generic;
 
 namespace SalesMicroservice.Models
 {
-    [FirestoreData]
+    
     public class SalesReport : IBaseFirestoreData
     {
         public string Id { get; set; }

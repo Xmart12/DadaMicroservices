@@ -1,5 +1,8 @@
-﻿namespace SalesMicroservice.Interfaces
+﻿using Google.Cloud.Firestore;
+
+namespace DadaRepositories.Interfaces
 {
+    [FirestoreData]
     public interface IBaseFirestoreData
     {
         /// <summary>

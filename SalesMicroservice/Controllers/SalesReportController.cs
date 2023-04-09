@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using SalesMicroservice.Models;
+using SalesMicroservice.Repositories;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,23 +14,32 @@ namespace SalesMicroservice.Controllers
     [ApiController]
     public class SalesReportController : ControllerBase
     {
+        private readonly SalesReportRepository _repository = new SalesReportRepository();
+
         // GET: api/<SalesReportController>
         [HttpGet]
-        public IEnumerable<string> Get()
+        public async Task<ActionResult<List<SalesReport>>> Get()
         {
-            return new string[] { "value1", "value2" };
+            return Ok(await _repository.GetAllAsync());
         }
 
         // GET api/<SalesReportController>/5
         [HttpGet("{id}")]
-        public string Get(int id)
+        public async Task<ActionResult<SalesReport>> Get(string id)
         {
-            return "value";
+            SalesReport sales = await _repository.GetAsync(id);
+
+            if (sales is null)
+            {
+                return NotFound();
+            }
+
+            return Ok(sales);
         }
 
         // POST api/<SalesReportController>
         [HttpPost]
-        public void Post([FromBody] string value)
+        public void Post([FromBody] SalesReport sales)
         {
         }
 
