@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using SalesMicroservice.Models;
 using SalesMicroservice.Repositories;
 using System;
@@ -14,7 +15,16 @@ namespace SalesMicroservice.Controllers
     [ApiController]
     public class SalesReportController : ControllerBase
     {
-        private readonly SalesReportRepository _repository = new SalesReportRepository();
+
+        private readonly IConfiguration _configuration;
+
+        private readonly SalesReportRepository _repository;
+
+        public SalesReportController(IConfiguration configuration)
+        {
+            _configuration = configuration;
+            _repository = new SalesReportRepository(configuration);
+        }
 
         // GET: api/<SalesReportController>
         [HttpGet]
@@ -39,8 +49,16 @@ namespace SalesMicroservice.Controllers
 
         // POST api/<SalesReportController>
         [HttpPost]
-        public void Post([FromBody] SalesReport sales)
+        public async Task<ActionResult<SalesReport>> Post([FromBody] SalesReport sales)
         {
+            SalesReport added = await _repository.AddAsync(sales);
+
+            if (added is null)
+            {
+                return BadRequest();
+            }
+
+            return Ok(added);
         }
 
         // PUT api/<SalesReportController>/5

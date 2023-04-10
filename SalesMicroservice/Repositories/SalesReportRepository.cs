@@ -1,5 +1,6 @@
 ﻿using DadaRepositories;
 using DadaRepositories.Utilities;
+using Microsoft.Extensions.Configuration;
 using SalesMicroservice.Models;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -11,9 +12,11 @@ namespace SalesMicroservice.Repositories
         private readonly FirestoreRepository _repository;
 
 
-        public SalesReportRepository()
+        public SalesReportRepository(IConfiguration configuration)
         {
-            _repository = new FirestoreRepository(Collection.SalesReports);
+            string filepath = configuration.GetValue<string>("Settings:FirebaseSettings:Filepath");
+            string projectId = configuration.GetValue<string>("Settings:FirebaseSettings:ProjectId");
+            _repository = new FirestoreRepository(filepath, projectId, Collection.SalesReports);
         }
 
 

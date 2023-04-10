@@ -37,7 +37,7 @@ namespace DadaRepositories.Interfaces
         /// Adds a record to the repository.
         /// </summary>
         /// <param name="entity"></param> S
-        Task DeleteAsync<TEntity>(TEntity entity) where TEntity : IBaseFirestoreData;
+        Task<bool> DeleteAsync<TEntity>(TEntity entity) where TEntity : IBaseFirestoreData;
 
         /// <summary>
         /// Query all record from the repository.

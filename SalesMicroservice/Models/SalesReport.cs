@@ -9,8 +9,8 @@ namespace SalesMicroservice.Models
         public string Id { get; set; }
         public int Correlative { get; set; }
         public int CustomerId { get; set; }
-        public Customer Customer { get; set; }
+        //public Customer Customer { get; set; }
         public string Description { get; set; }
-        public List<SalesReportDetail> Details { get; set; }
+        //public List<SalesReportDetail> Details { get; set; }
     }
 }
