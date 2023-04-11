@@ -71,11 +71,10 @@ namespace SalesMicroservice.Controllers
         [HttpPost]
         public async Task<ActionResult<SalesReport>> Post([FromBody] SalesReport sales)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                return BadRequest(ModelState.Select(x => x.Value.Errors)
-                           .Where(y => y.Count > 0)
-                           .ToList());
+                List<string> errors = ModelState.Values.SelectMany(m => m.Errors).Select(s => s.ErrorMessage).ToList();
+                return BadRequest(new { Message = errors });
             }
 
             SalesReport added = await _repository.AddAsync(sales);

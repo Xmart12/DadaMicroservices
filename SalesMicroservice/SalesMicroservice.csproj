@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\DadaRepositories\DadaRepositories.csproj" />
+    <ProjectReference Include="..\Utilities\Utilities.csproj" />
   </ItemGroup>
 
 

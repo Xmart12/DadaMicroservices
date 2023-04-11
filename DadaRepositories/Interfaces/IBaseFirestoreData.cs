@@ -1,5 +1,4 @@
 ﻿using Google.Cloud.Firestore;
-using System.ComponentModel.DataAnnotations;
 
 namespace DadaRepositories.Interfaces
 {
@@ -9,7 +8,6 @@ namespace DadaRepositories.Interfaces
         /// <summary>
         /// Gets and set the Id.
         /// </summary>
-        [Required]
         public string Id { get; set; }
     }
 }
