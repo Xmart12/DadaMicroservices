@@ -3,14 +3,15 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Utilities.Attributes;
 
-namespace SalesMicroservice.Models
+namespace DadaRepositories.Models
 {
     public class SalesReport : IBaseFirestoreData
     {
         [Required]
         public string Id { get; set; }
 
-        [Required]
+        public string CustomerDocument { get; set; }
+
         public Customer Customer { get; set; }
 
         public string Description { get; set; }

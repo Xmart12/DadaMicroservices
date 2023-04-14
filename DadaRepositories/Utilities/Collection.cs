@@ -2,6 +2,8 @@
 {
     public enum Collection
     {
+        Configurations,
+        Customers,
         SalesReports
     }
 }

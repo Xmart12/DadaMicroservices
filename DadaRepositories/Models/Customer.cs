@@ -1,11 +1,12 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using DadaRepositories.Interfaces;
+using System.ComponentModel.DataAnnotations;
 
-namespace SalesMicroservice.Models
+namespace DadaRepositories.Models
 {
-    public class Customer
+    public class Customer : IBaseFirestoreData
     {
         [Required]
-        public int Id { get; set; }
+        public string Id { get; set; }
 
         [Required, MinLength(8, ErrorMessage = "Document is not valid. Min. 8")]
         public string Document { get; set; }

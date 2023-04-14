@@ -17,7 +17,7 @@ namespace DadaRepositories.Interfaces
         /// </summary>
         /// <param name="id">Index record to get</param>
         /// <returns>a record of type T</returns>
-        Task<object> GetAsync<TEntity>(string id) where TEntity : IBaseFirestoreData;
+        Task<TEntity> GetAsync<TEntity>(string id) where TEntity : IBaseFirestoreData;
 
         /// <summary>
         /// Adds a record to the repository.

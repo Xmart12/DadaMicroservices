@@ -1,7 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using DadaRepositories.Models;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
-using SalesMicroservice.Models;
-using SalesMicroservice.Repositories;
+using SalesMicroservice.Services;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -18,7 +18,7 @@ namespace SalesMicroservice.Controllers
         /// <summary>
         /// Sales Report Repository
         /// </summary>
-        private readonly SalesReportRepository _repository;
+        private readonly SalesReportService _service;
 
 
         /// <summary>
@@ -27,7 +27,7 @@ namespace SalesMicroservice.Controllers
         /// <param name="configuration">Configuration interface</param>
         public SalesReportController(IConfiguration configuration)
         {
-            _repository = new SalesReportRepository(configuration);
+            _service = new SalesReportService(configuration);
         }
 
 
@@ -39,7 +39,7 @@ namespace SalesMicroservice.Controllers
         [HttpGet]
         public async Task<ActionResult<List<SalesReport>>> Get()
         {
-            return Ok(await _repository.GetAllAsync());
+            return Ok(await _service.GetSalesReports());
         }
 
 
@@ -52,7 +52,7 @@ namespace SalesMicroservice.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<SalesReport>> Get(string id)
         {
-            SalesReport sales = await _repository.GetAsync(id);
+            SalesReport sales = await _service.GetSalesReport(id);
 
             if (sales is null)
             {
@@ -71,13 +71,7 @@ namespace SalesMicroservice.Controllers
         [HttpPost]
         public async Task<ActionResult<SalesReport>> Post([FromBody] SalesReport sales)
         {
-            if (!ModelState.IsValid)
-            {
-                List<string> errors = ModelState.Values.SelectMany(m => m.Errors).Select(s => s.ErrorMessage).ToList();
-                return BadRequest(new { Message = errors });
-            }
-
-            SalesReport added = await _repository.AddAsync(sales);
+            SalesReport added = await _service.CreateSalesReport(sales);
 
             if (added is null)
             {

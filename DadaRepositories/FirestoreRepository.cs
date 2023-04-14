@@ -81,7 +81,7 @@ namespace DadaRepositories
         /// <typeparam name="T">Model base from collection</typeparam>
         /// <param name="id">Id record from collection</param>
         /// <returns>Reccord model from collection</returns>
-        public async Task<object> GetAsync<T>(string id) where T : IBaseFirestoreData
+        public async Task<T> GetAsync<T>(string id) where T : IBaseFirestoreData
         {
             //Get access to collection and return document
             var docRef = _firestoreDb.Collection(_collection.ToString()).Document(id);
@@ -99,7 +99,7 @@ namespace DadaRepositories
             }
 
             //Return null if snapshot doesn't exist
-            return null;
+            return default;
         }
 
 
