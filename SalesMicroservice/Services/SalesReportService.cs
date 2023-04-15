@@ -2,6 +2,7 @@
 using DadaRepositories.Models;
 using DadaRepositories.Utilities;
 using Microsoft.Extensions.Configuration;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -34,10 +35,15 @@ namespace SalesMicroservice.Services
             {
                 if (sales.Customer is null)
                 {
-                    throw new System.Exception();
+                    throw new Exception();
                 }
 
-                await _customers.AddAsync(sales.Customer);
+                if ((await _customers.GetAsync<Customer>(sales.Customer.Document)) is null)
+                {
+                    sales.Customer.Id = sales.Customer.Document;
+                    sales.CustomerDocument = sales.Customer.Document;
+                    await _customers.AddAsync(sales.Customer);
+                }
             }
 
             if (sales.Customer is null)
@@ -46,7 +52,7 @@ namespace SalesMicroservice.Services
 
                 if (sales.Customer is null)
                 {
-                    throw new System.Exception();
+                    throw new Exception();
                 }
             }
 
@@ -56,12 +62,35 @@ namespace SalesMicroservice.Services
             correlative++;
 
             sales.Id = correlative.ToString();
+            int detailId = 1;
             sales.Details.ForEach(f =>
             {
                 f.SalesReportId = correlative;
-            });
+                f.Id = detailId;
+                detailId++;
+            });    
+            
+            sales = await _sales.AddAsync(sales);
 
-            return await _sales.AddAsync(sales);
+            salesReportConf.LastId = correlative.ToString();
+            await _conf.UpdateAsync(salesReportConf);
+
+            return sales;
+        }
+
+        public async Task<SalesReport> UpdateSalesReport(SalesReport sales)
+        {
+            SalesReport sr = await _sales.GetAsync<SalesReport>(sales.Id);
+
+            if (sr is null)
+            {
+                throw new Exception();
+            }
+
+            sr.Description = sales.Description;
+            sr.Details = sales.Details;
+
+            return await _sales.UpdateAsync(sr);
         }
     }
 }

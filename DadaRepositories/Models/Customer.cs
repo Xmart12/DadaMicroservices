@@ -5,7 +5,6 @@ namespace DadaRepositories.Models
 {
     public class Customer : IBaseFirestoreData
     {
-        [Required]
         public string Id { get; set; }
 
         [Required, MinLength(8, ErrorMessage = "Document is not valid. Min. 8")]

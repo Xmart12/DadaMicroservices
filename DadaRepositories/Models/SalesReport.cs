@@ -7,7 +7,6 @@ namespace DadaRepositories.Models
 {
     public class SalesReport : IBaseFirestoreData
     {
-        [Required]
         public string Id { get; set; }
 
         public string CustomerDocument { get; set; }
