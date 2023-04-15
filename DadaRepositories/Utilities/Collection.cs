@@ -4,6 +4,8 @@
     {
         Configurations,
         Customers,
-        SalesReports
+        SalesReports,
+        Products,
+        Inventory
     }
 }
