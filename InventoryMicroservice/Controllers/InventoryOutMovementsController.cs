@@ -10,7 +10,7 @@ namespace InventoryMicroservice.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class InventoryOutMovementController : ControllerBase
+    public class InventoryOutMovementsController : ControllerBase
     {
         // GET: api/<InventoryOutMovementController>
         [HttpGet]

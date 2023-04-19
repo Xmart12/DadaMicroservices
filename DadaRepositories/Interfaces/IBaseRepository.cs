@@ -43,6 +43,6 @@ namespace DadaRepositories.Interfaces
         /// Query all record from the repository.
         /// </summary> 
         /// <returns>a records of type T</returns>
-        Task<List<TEntity>> QueryRecordsAsync<TEntity>(Query query) where TEntity : IBaseFirestoreData;
+        Task<List<TEntity>> QueryRecordsAsync<TEntity>(string pathField, object value) where TEntity : IBaseFirestoreData;
     }
 }

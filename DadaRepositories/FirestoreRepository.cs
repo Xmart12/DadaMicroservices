@@ -1,10 +1,13 @@
 ﻿using DadaRepositories.Interfaces;
+using DadaRepositories.Models;
 using DadaRepositories.Utilities;
 using Google.Cloud.Firestore;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Dynamic;
+using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 
 namespace DadaRepositories
@@ -188,17 +191,20 @@ namespace DadaRepositories
         }
 
         /// <inheritdoc />
-        public async Task<List<T>> QueryRecordsAsync<T>(Query query) where T : IBaseFirestoreData
+        public async Task<List<T>> QueryRecordsAsync<T>(string pathField, object value) where T : IBaseFirestoreData
         {
+            var query = _firestoreDb.Collection(_collection.ToString()).WhereEqualTo(pathField, value);
             var querySnapshot = await query.GetSnapshotAsync();
             var list = new List<T>();
             foreach (var documentSnapshot in querySnapshot.Documents)
             {
                 if (!documentSnapshot.Exists) continue;
-                var data = documentSnapshot.ConvertTo<T>();
+                var data = documentSnapshot.ConvertTo<ExpandoObject>();
+                var str = JsonConvert.SerializeObject(data);
                 if (data == null) continue;
-                data.Id = documentSnapshot.Id;
-                list.Add(data);
+                var entity = JsonConvert.DeserializeObject<T>(str);
+                entity.Id = documentSnapshot.Id;
+                list.Add(entity);
             }
 
             return list;

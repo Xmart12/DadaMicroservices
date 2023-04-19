@@ -1,87 +1,59 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using DadaRepositories.Models;
+using InventoryMicroservice.Services;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using System;
+using Microsoft.Extensions.Configuration;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace InventoryMicroservice.Controllers
 {
-    public class ProductsController : Controller
+    [Route("api/[controller]")]
+    [ApiController]
+    public class ProductsController : ControllerBase
     {
-        // GET: ProductsController
-        public ActionResult Index()
+        private readonly ProductsServices _service;
+
+        public ProductsController(IConfiguration configuration)
         {
-            return View();
+            _service = new ProductsServices(configuration);
         }
 
-        // GET: ProductsController/Details/5
-        public ActionResult Details(int id)
+        // GET: api/products
+        [HttpGet]
+        public async Task<ActionResult<List<Product>>> Get()
         {
-            return View();
+            return Ok(await _service.GetProducts());
         }
 
-        // GET: ProductsController/Create
-        public ActionResult Create()
+
+        // GET: api/products/{id}
+        [HttpGet("{id}")]
+        public async Task<ActionResult<Product>> Get(string id)
         {
-            return View();
+            Product product = await _service.GetProduct(id);
+
+            if (product is null)
+            {
+                return NotFound();
+            }
+
+            return Ok(product);
         }
 
-        // POST: ProductsController/Create
+        // POST: api/products
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Create(IFormCollection collection)
+        public async Task<ActionResult<Product>> Post([FromBody] Product product)
         {
-            try
+            Product added = await _service.CreateProduct(product);
+
+            if (added is null)
             {
-                return RedirectToAction(nameof(Index));
+                return BadRequest();
             }
-            catch
-            {
-                return View();
-            }
+
+            return Ok(added);
         }
 
-        // GET: ProductsController/Edit/5
-        public ActionResult Edit(int id)
-        {
-            return View();
-        }
-
-        // POST: ProductsController/Edit/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, IFormCollection collection)
-        {
-            try
-            {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
-        }
-
-        // GET: ProductsController/Delete/5
-        public ActionResult Delete(int id)
-        {
-            return View();
-        }
-
-        // POST: ProductsController/Delete/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, IFormCollection collection)
-        {
-            try
-            {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
-        }
     }
 }

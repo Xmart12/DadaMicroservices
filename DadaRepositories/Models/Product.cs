@@ -14,6 +14,7 @@ namespace DadaRepositories.Models
 
         public double Cost { get; set; }
 
+        [Required]
         public int Availability { get; set; }
     }
 }
