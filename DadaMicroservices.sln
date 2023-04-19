@@ -7,9 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SalesMicroservice", "SalesM
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DadaRepositories", "DadaRepositories\DadaRepositories.csproj", "{F83B678C-1480-46E8-B5CB-D4436EC8E618}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Utilities", "Utilities\Utilities.csproj", "{13EF0945-81CC-49FC-9616-D322AE0F827E}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InventoryMicroservice", "InventoryMicroservice\InventoryMicroservice.csproj", "{1DD05361-A633-4827-8124-06E7912E56E4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InventoryMicroservice", "InventoryMicroservice\InventoryMicroservice.csproj", "{1DD05361-A633-4827-8124-06E7912E56E4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -25,10 +23,6 @@ Global
 		{F83B678C-1480-46E8-B5CB-D4436EC8E618}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F83B678C-1480-46E8-B5CB-D4436EC8E618}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F83B678C-1480-46E8-B5CB-D4436EC8E618}.Release|Any CPU.Build.0 = Release|Any CPU
-		{13EF0945-81CC-49FC-9616-D322AE0F827E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{13EF0945-81CC-49FC-9616-D322AE0F827E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{13EF0945-81CC-49FC-9616-D322AE0F827E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{13EF0945-81CC-49FC-9616-D322AE0F827E}.Release|Any CPU.Build.0 = Release|Any CPU
 		{1DD05361-A633-4827-8124-06E7912E56E4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{1DD05361-A633-4827-8124-06E7912E56E4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1DD05361-A633-4827-8124-06E7912E56E4}.Release|Any CPU.ActiveCfg = Release|Any CPU

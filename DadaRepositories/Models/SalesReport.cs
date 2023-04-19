@@ -1,7 +1,7 @@
-﻿using DadaRepositories.Interfaces;
+﻿using DadaRepositories.Attributes;
+using DadaRepositories.Interfaces;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using Utilities.Attributes;
 
 namespace DadaRepositories.Models
 {

@@ -1,13 +1,11 @@
-﻿using DadaRepositories.Interfaces;
-using DadaRepositories.Models;
+﻿using DadaRepositories.Extensions;
+using DadaRepositories.Interfaces;
 using DadaRepositories.Utilities;
 using Google.Cloud.Firestore;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Dynamic;
-using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
 
 namespace DadaRepositories
@@ -51,7 +49,7 @@ namespace DadaRepositories
         /// </summary>
         /// <typeparam name="T">Model base from collection</typeparam>
         /// <returns>List of records from collection</returns>
-        public async Task<List<T>> GetAllAsync<T>() where T : IBaseFirestoreData
+        public async Task<List<T>> GetAllAsync<T>() where T : class, IBaseFirestoreData
         {
             //List to return 
             List<T> list = new List<T>();
@@ -68,7 +66,7 @@ namespace DadaRepositories
                 if (!documentSnapshot.Exists) continue;
                 var data = documentSnapshot.ConvertTo<ExpandoObject>();
                 if (data == null) continue;
-                var entity = JsonConvert.DeserializeObject<T>(JsonConvert.SerializeObject(data));
+                var entity = data.ConvertTo<T>();
                 entity.Id = documentSnapshot.Id;
                 list.Add(entity);
             }
@@ -84,7 +82,7 @@ namespace DadaRepositories
         /// <typeparam name="T">Model base from collection</typeparam>
         /// <param name="id">Id record from collection</param>
         /// <returns>Reccord model from collection</returns>
-        public async Task<T> GetAsync<T>(string id) where T : IBaseFirestoreData
+        public async Task<T> GetAsync<T>(string id) where T : class, IBaseFirestoreData
         {
             //Get access to collection and return document
             var docRef = _firestoreDb.Collection(_collection.ToString()).Document(id);
@@ -96,7 +94,7 @@ namespace DadaRepositories
             if (snapshot.Exists)
             {
                 var data = snapshot.ConvertTo<ExpandoObject>();
-                var entity = JsonConvert.DeserializeObject<T>(JsonConvert.SerializeObject(data));
+                var entity = data.ConvertTo<T>();
                 entity.Id = snapshot.Id;
                 return entity;
             }
@@ -112,7 +110,7 @@ namespace DadaRepositories
         /// <typeparam name="T">Model base from collection</typeparam>
         /// <param name="entity">Model object to create in collection</param>
         /// <returns>Record created in collection</returns>
-        public async Task<T> AddAsync<T>(T entity) where T : IBaseFirestoreData
+        public async Task<T> AddAsync<T>(T entity) where T : class, IBaseFirestoreData
         {
             try
             {
@@ -120,7 +118,7 @@ namespace DadaRepositories
                 var colRef = _firestoreDb.Collection(_collection.ToString()).Document(entity.Id);
 
                 //Convert data to jsonobject
-                var data = JsonConvert.DeserializeObject<ExpandoObject>(JsonConvert.SerializeObject(entity));
+                var data = entity.ConvertToExpandoObject();
 
                 //Add record to collection
                 var doc = await colRef.CreateAsync(data);
@@ -141,7 +139,7 @@ namespace DadaRepositories
         /// <typeparam name="T">Model base from collection</typeparam>
         /// <param name="entity">Model object to update in collection</param>
         /// <returns>Record updated in collection</returns>
-        public async Task<T> UpdateAsync<T>(T entity) where T : IBaseFirestoreData
+        public async Task<T> UpdateAsync<T>(T entity) where T : class, IBaseFirestoreData
         {
             try
             {
@@ -149,7 +147,7 @@ namespace DadaRepositories
                 var recordRef = _firestoreDb.Collection(_collection.ToString()).Document(entity.Id);
 
                 //Convert data to json object
-                var data = JsonConvert.DeserializeObject<ExpandoObject>(JsonConvert.SerializeObject(entity));
+                var data = entity.ConvertToExpandoObject();
                 
                 //Uodate record
                 await recordRef.SetAsync(data, SetOptions.MergeAll);
@@ -171,7 +169,7 @@ namespace DadaRepositories
         /// <typeparam name="T">Model base from collection</typeparam>
         /// <param name="entity">Model object to delete in collection</param>
         /// <returns>Boolean flag to proccess status</returns>
-        public async Task<bool> DeleteAsync<T>(T entity) where T : IBaseFirestoreData
+        public async Task<bool> DeleteAsync<T>(T entity) where T : class, IBaseFirestoreData
         {
             try
             {
@@ -191,7 +189,7 @@ namespace DadaRepositories
         }
 
         /// <inheritdoc />
-        public async Task<List<T>> QueryRecordsAsync<T>(string pathField, object value) where T : IBaseFirestoreData
+        public async Task<List<T>> QueryRecordsAsync<T>(string pathField, object value) where T : class, IBaseFirestoreData
         {
             var query = _firestoreDb.Collection(_collection.ToString()).WhereEqualTo(pathField, value);
             var querySnapshot = await query.GetSnapshotAsync();
@@ -200,9 +198,8 @@ namespace DadaRepositories
             {
                 if (!documentSnapshot.Exists) continue;
                 var data = documentSnapshot.ConvertTo<ExpandoObject>();
-                var str = JsonConvert.SerializeObject(data);
                 if (data == null) continue;
-                var entity = JsonConvert.DeserializeObject<T>(str);
+                T entity = data.ConvertTo<T>();
                 entity.Id = documentSnapshot.Id;
                 list.Add(entity);
             }

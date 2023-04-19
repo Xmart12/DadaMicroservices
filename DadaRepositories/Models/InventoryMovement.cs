@@ -1,10 +1,8 @@
-﻿using DadaRepositories.Interfaces;
-using DadaRepositories.Utilities;
-using Google.Cloud.Firestore;
+﻿using DadaRepositories.Attributes;
+using DadaRepositories.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using Utilities.Attributes;
 
 namespace DadaRepositories.Models
 {
@@ -15,8 +13,8 @@ namespace DadaRepositories.Models
         [Required]
         public string Type { get; set; }
 
-        [Required, DataType(DataType.Date)]
-        public string Date { get; set; }
+        [Required, DataType(DataType.Date), DisplayFormat(DataFormatString = "yyyy-MM-dd")]
+        public DateTime Date { get; set; }
 
         public string Description { get; set; }
 

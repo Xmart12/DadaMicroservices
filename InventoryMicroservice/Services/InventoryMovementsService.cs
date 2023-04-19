@@ -43,7 +43,6 @@ namespace InventoryMicroservice.Services
             correlative++;
 
             movement.Id = correlative.ToString();
-            //movement.Date = DateTime.SpecifyKind((DateTime)movement.Date, DateTimeKind.Utc);
             int detailId = 1;
             movement.Details.ForEach(f =>
             {
