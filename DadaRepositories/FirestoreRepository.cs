@@ -1,8 +1,6 @@
-﻿using DadaRepositories.Extensions;
-using DadaRepositories.Interfaces;
+﻿using DadaRepositories.Interfaces;
 using DadaRepositories.Utilities;
 using Google.Cloud.Firestore;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Dynamic;
@@ -188,7 +186,14 @@ namespace DadaRepositories
             }
         }
 
-        /// <inheritdoc />
+
+        /// <summary>
+        /// Search record by field value
+        /// </summary>
+        /// <typeparam name="T">Model base from collection</typeparam>
+        /// <param name="pathField">Path field to search</param>
+        /// <param name="value">Value to search</param>
+        /// <returns>List of record from collection</returns>
         public async Task<List<T>> QueryRecordsAsync<T>(string pathField, object value) where T : class, IBaseFirestoreData
         {
             var query = _firestoreDb.Collection(_collection.ToString()).WhereEqualTo(pathField, value);
@@ -206,5 +211,7 @@ namespace DadaRepositories
 
             return list;
         }
+
+
     }
 }

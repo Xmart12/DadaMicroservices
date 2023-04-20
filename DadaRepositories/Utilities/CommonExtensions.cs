@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Dynamic;
 using System.Linq;
 
-namespace DadaRepositories.Extensions
+namespace DadaRepositories.Utilities
 {
     public static class CommonExtensions
     {
@@ -15,11 +15,11 @@ namespace DadaRepositories.Extensions
             if (expando == null) return default;
 
             //Convert Timestamp to Datetime
-            expando.Where(w => w.Value is Timestamp).Select(s => s.Key).ToList().ForEach(f =>
+            expando.Where(w => w.Value is Timestamp).Select(s => s.Key).ToList().ForEach(prop =>
             {
-                if (expando is IDictionary<string, object> expandoDict && expandoDict.ContainsKey(f))
+                if (expando is IDictionary<string, object> expandoDict && expandoDict.ContainsKey(prop))
                 {
-                    expandoDict[f] = ((Timestamp)expandoDict[f]).ToDateTime();
+                    expandoDict[prop] = ((Timestamp)expandoDict[prop]).ToDateTime();
                 }
             });
 

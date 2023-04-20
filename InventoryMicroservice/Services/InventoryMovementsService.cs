@@ -43,6 +43,7 @@ namespace InventoryMicroservice.Services
             correlative++;
 
             movement.Id = correlative.ToString();
+            movement.Type = _type.ToString();
             int detailId = 1;
             movement.Details.ForEach(f =>
             {

@@ -1,35 +1,50 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using System;
+﻿using DadaRepositories.Models;
+using DadaRepositories.Utilities;
+using InventoryMicroservice.Services;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
-
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace InventoryMicroservice.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/inventory/movements/out")]
     [ApiController]
     public class InventoryOutMovementsController : ControllerBase
     {
-        // GET: api/<InventoryOutMovementController>
+        private readonly InventoryMovementsService _service;
+
+        public InventoryOutMovementsController(IConfiguration configuration)
+        {
+            _service = new InventoryMovementsService(configuration, InventoryMovementType.Out);
+        }
+
+        // GET: api/inventory/movements/out
         [HttpGet]
-        public IEnumerable<string> Get()
+        public async Task<ActionResult<List<InventoryMovement>>> Get()
         {
-            return new string[] { "value1", "value2" };
+            return Ok(await _service.GetInventoyMovements());
         }
 
-        // GET api/<InventoryOutMovementController>/5
+        // GET api/inventory/movements/out/{id}
         [HttpGet("{id}")]
-        public string Get(int id)
+        public async Task<ActionResult<InventoryMovement>> Get(string id)
         {
-            return "value";
+            return Ok(await _service.GetInventoyMovement(id));
         }
 
-        // POST api/<InventoryOutMovementController>
+        // POST api/inventory/movements/out
         [HttpPost]
-        public void Post([FromBody] string value)
+        public async Task<ActionResult<InventoryMovement>> Post([FromBody] InventoryMovement movement)
         {
+            InventoryMovement added = await _service.CreateInventoryMovement(movement);
+
+            if (added is null)
+            {
+                return BadRequest();
+            }
+
+            return Ok(added);
         }
 
         // PUT api/<InventoryOutMovementController>/5
