@@ -6,6 +6,7 @@
         Customers,
         SalesReports,
         Products,
-        Inventory
+        Inventory,
+        Purchases
     }
 }

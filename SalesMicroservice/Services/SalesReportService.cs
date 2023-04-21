@@ -67,6 +67,7 @@ namespace SalesMicroservice.Services
             {
                 f.SalesReportId = correlative;
                 f.Id = detailId;
+                f.Line = detailId;
                 detailId++;
             });    
             
