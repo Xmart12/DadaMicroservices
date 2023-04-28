@@ -7,6 +7,7 @@
         SalesReports,
         Products,
         Inventory,
-        Purchases
+        Purchases,
+        WorkOrders
     }
 }

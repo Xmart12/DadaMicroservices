@@ -1,5 +1,6 @@
 ﻿using DadaRepositories.Interfaces;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace DadaRepositories.Models
@@ -17,6 +18,8 @@ namespace DadaRepositories.Models
         public DateTime Date { get; set; }
 
         public string Description { get; set; }
+
+        public List<WorkOrderDetail> Details { get; set; }
 
     }
 }
