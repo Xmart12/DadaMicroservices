@@ -27,14 +27,14 @@ namespace WorkOrdersMicroservice.Controllers
 
         // GET api/workorders/{id}
         [HttpGet("{id}")]
-        public async Task<ActionResult<InventoryMovement>> Get(string id)
+        public async Task<ActionResult<WorkOrder>> Get(string id)
         {
             return Ok(await _service.GetWorkOrder(id));
         }
 
-        // POST api/workorders/entry
+        // POST api/workorders
         [HttpPost]
-        public async Task<ActionResult<InventoryMovement>> Post([FromBody] WorkOrder work)
+        public async Task<ActionResult<WorkOrder>> Post([FromBody] WorkOrder work)
         {
             WorkOrder added = await _service.CreateWorkOrder(work);
 

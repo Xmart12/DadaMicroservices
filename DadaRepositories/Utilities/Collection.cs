@@ -8,6 +8,7 @@
         Products,
         Inventory,
         Purchases,
-        WorkOrders
+        WorkOrders,
+        Invoices
     }
 }

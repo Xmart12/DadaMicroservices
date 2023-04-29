@@ -1,0 +1,61 @@
+﻿using DadaRepositories.Models;
+using InvoicesMicroservice.Services;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+
+namespace InvoicesMicroservice.Controllers
+{
+    [Route("api/[controller]")]
+    [ApiController]
+    public class InvoicesController : ControllerBase
+    {
+        private readonly InvoicesService _service;
+
+        public InvoicesController(IConfiguration configuration)
+        {
+            _service = new InvoicesService(configuration);
+        }
+
+        // GET: api/invoices
+        [HttpGet]
+        public async Task<ActionResult<List<Invoice>>> Get()
+        {
+            return Ok(await _service.GetInvoices());
+        }
+
+        // GET api/invoices/{id}
+        [HttpGet("{id}")]
+        public async Task<ActionResult<Invoice>> Get(string id)
+        {
+            return Ok(await _service.GetInvoice(id));
+        }
+
+        // POST api/invoices
+        [HttpPost]
+        public async Task<ActionResult<Invoice>> Post([FromBody] Invoice invoice)
+        {
+            Invoice added = await _service.CreateInvoice(invoice);
+
+            if (added is null)
+            {
+                return BadRequest();
+            }
+
+            return Ok(added);
+        }
+
+        // PUT api/invoices/{id}
+        [HttpPut("{id}")]
+        public void Put(int id, [FromBody] string value)
+        {
+        }
+
+        // DELETE api/invoices/{id}
+        [HttpDelete("{id}")]
+        public void Delete(int id)
+        {
+        }
+    }
+}
