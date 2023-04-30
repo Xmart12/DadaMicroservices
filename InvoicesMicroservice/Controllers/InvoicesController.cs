@@ -1,8 +1,10 @@
-﻿using DadaRepositories.Models;
+﻿using DadaRepositories.Contexts;
+using DadaRepositories.Models;
 using InvoicesMicroservice.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace InvoicesMicroservice.Controllers
@@ -13,9 +15,9 @@ namespace InvoicesMicroservice.Controllers
     {
         private readonly InvoicesService _service;
 
-        public InvoicesController(IConfiguration configuration)
+        public InvoicesController(DadaDbContext context)
         {
-            _service = new InvoicesService(configuration);
+            _service = new InvoicesService(context);
         }
 
         // GET: api/invoices
@@ -27,7 +29,7 @@ namespace InvoicesMicroservice.Controllers
 
         // GET api/invoices/{id}
         [HttpGet("{id}")]
-        public async Task<ActionResult<Invoice>> Get(string id)
+        public async Task<ActionResult<Invoice>> Get(int id)
         {
             return Ok(await _service.GetInvoice(id));
         }

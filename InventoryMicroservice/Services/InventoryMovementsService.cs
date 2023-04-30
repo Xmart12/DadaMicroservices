@@ -1,78 +1,86 @@
 ﻿using DadaRepositories;
+using DadaRepositories.Contexts;
 using DadaRepositories.Models;
 using DadaRepositories.Utilities;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace InventoryMicroservice.Services
 {
     public class InventoryMovementsService
     {
-        private readonly FirestoreRepository _movement;
-        private readonly FirestoreRepository _conf;
-
-
+        private readonly DadaDbContext _context; 
         private readonly InventoryMovementType _type;
 
-        public InventoryMovementsService(IConfiguration configuration, InventoryMovementType type)
-        {
-            string filepath = configuration.GetValue<string>("Settings:FirebaseSettings:FilePath");
-            string projectid = configuration.GetValue<string>("Settings:FirebaseSettings:ProjectId");
-            _movement = new FirestoreRepository(filepath, projectid, Collection.Inventory);
-            _conf = new FirestoreRepository(filepath, projectid, Collection.Configurations);
 
+        public InventoryMovementsService(DadaDbContext context, InventoryMovementType type)
+        {
+            _context = context;
             _type = type;
         }
 
 
-        public async Task<List<InventoryMovement>> GetInventoyMovements() => await _movement
-            .QueryRecordsAsync<InventoryMovement>(nameof(InventoryMovement.Type), _type.ToString());
+        public async Task<List<InventoryMovement>> GetInventoyMovements() => await _context.InventoryMovements
+            .Include(i => i.Details).ThenInclude(i => i.Product).Where(w => w.Type == _type.ToString())
+            .ToListAsync();
 
 
-        public async Task<InventoryMovement> GetInventoyMovement(string id) => await _movement
-            .GetAsync<InventoryMovement>(id);
-
+        public async Task<InventoryMovement> GetInventoyMovement(int id) => await _context.InventoryMovements
+            .Include(i => i.Details).ThenInclude(i => i.Product)
+            .FirstOrDefaultAsync(f => f.Type == _type.ToString() && f.Id == id);
+        
 
         public async Task<InventoryMovement> CreateInventoryMovement(InventoryMovement movement)
         {
-            Configuration movementConf = await _conf.GetAsync<Configuration>("InventoryMovements");
-
-            int.TryParse(movementConf.LastId, out int correlative);
-            correlative++;
-
-            movement.Id = correlative.ToString();
             movement.Type = _type.ToString();
-            int detailId = 1;
-            movement.Details.ForEach(f =>
+
+            var result = await _context.InventoryMovements.AddAsync(movement);
+            await _context.SaveChangesAsync();
+
+            if (result.State == EntityState.Added)
             {
-                f.InventoryMovementId = correlative.ToString();
-                f.Id = detailId.ToString();
-                detailId++;
-            });
+                movement.Details.ForEach(f =>
+                {
+                    f.InventoryMovementId = result.Entity.Id;
 
-            movement = await _movement.AddAsync(movement);
+                    _context.InventoryMovementDetails.Add(f);
+                });
 
-            movementConf.LastId = correlative.ToString();
-            await _conf.UpdateAsync(movementConf);
+                await _context.SaveChangesAsync();
+            }
 
-            return movement;
+            return await GetInventoyMovement(result.Entity.Id);
         }
         
+
         public async Task<InventoryMovement> UpdateInventoryMovement(InventoryMovement movement)
         {
-            InventoryMovement sr = await _movement.GetAsync<InventoryMovement>(movement.Id);
+            InventoryMovement im = await GetInventoyMovement(movement.Id);
 
-            if (sr is null)
+            if (im is null)
             {
                 throw new Exception();
             }
 
-            sr.Description = movement.Description;
-            sr.Details = movement.Details;
+            im.Description = movement.Description;
+            _context.Entry(im).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
 
-            return await _movement.UpdateAsync(sr);
+            im.Details.ForEach(f =>
+            {
+                _context.InventoryMovementDetails.Remove(f);
+            });
+            movement.Details.ForEach(f =>
+            {
+                _context.InventoryMovementDetails.Add(f);
+            });
+            await _context.SaveChangesAsync();
+
+            return movement;
         }
 
     }

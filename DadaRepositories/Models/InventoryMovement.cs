@@ -1,14 +1,18 @@
 ﻿using DadaRepositories.Attributes;
-using DadaRepositories.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace DadaRepositories.Models
 {
-    public class InventoryMovement : IBaseFirestoreData
+    public class InventoryMovement
     {
-        public string Id { get; set; }
+        public InventoryMovement()
+        {
+            Details = new List<InventoryMovementDetail>();
+        }
+
+        public int Id { get; set; }
 
         [Required]
         public string Type { get; set; }

@@ -1,15 +1,24 @@
 ﻿using DadaRepositories.Attributes;
 using DadaRepositories.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace DadaRepositories.Models
 {
-    public class SalesReport : IBaseFirestoreData
+    public class SalesReport
     {
-        public string Id { get; set; }
+        public SalesReport()
+        {
+            Details = new List<SalesReportDetail>();
+        }
 
-        public string CustomerDocument { get; set; }
+        public int Id { get; set; }
+
+        [Required, DataType(DataType.Date)]
+        public DateTime Date { get; set; }
+
+        public string CustomerId { get; set; }
 
         public Customer Customer { get; set; }
 

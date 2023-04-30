@@ -1,7 +1,6 @@
-﻿using DadaRepositories;
+﻿using DadaRepositories.Contexts;
 using DadaRepositories.Models;
-using DadaRepositories.Utilities;
-using Microsoft.Extensions.Configuration;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -10,60 +9,70 @@ namespace PurchasesMicroservice.Services
 {
     public class PurchasesService
     {
-        private readonly FirestoreRepository _purchases;
-        private readonly FirestoreRepository _conf;
+        private readonly DadaDbContext _context;
 
-        public PurchasesService(IConfiguration configuration)
+        public PurchasesService(DadaDbContext context)
         {
-            string filepath = configuration.GetValue<string>("Settings:FirebaseSettings:FilePath");
-            string projectid = configuration.GetValue<string>("Settings:FirebaseSettings:ProjectId");
-            _purchases = new FirestoreRepository(filepath, projectid, Collection.Purchases);
-            _conf = new FirestoreRepository(filepath, projectid, Collection.Configurations);
+            _context = context;
         }
 
 
-        public async Task<List<Purchase>> GetPurchases() => await _purchases.GetAllAsync<Purchase>();
+        public async Task<List<Purchase>> GetPurchases() => await _context.Purchases
+            .Include(i => i.Details).ThenInclude(i => i.Product)
+            .ToListAsync();
 
-        public async Task<Purchase> GetPurchase(string id) => await _purchases.GetAsync<Purchase>(id);
+
+        public async Task<Purchase> GetPurchase(int id) => await _context.Purchases
+            .Include(i => i.Details).ThenInclude(i => i.Product)
+            .FirstOrDefaultAsync(f => f.Id == id);
+
 
         public async Task<Purchase> CreatePurchase(Purchase purchase)
         {
-            Configuration purchasesConf = await _conf.GetAsync<Configuration>("Purchases");
+            var result = await _context.Purchases.AddAsync(purchase);
+            await _context.SaveChangesAsync();
 
-            int.TryParse(purchasesConf.LastId, out int correlative);
-            correlative++;
-
-            purchase.Id = correlative.ToString();
-            int detailId = 1;
-            purchase.Details.ForEach(f =>
+            if (result.State == EntityState.Added)
             {
-                f.PurchaseId = correlative;
-                f.Id = detailId;
-                f.Line = detailId;
-                detailId++;
-            });
+                purchase.Details.ForEach(f =>
+                {
+                    f.PurchaseId = result.Entity.Id;
 
-            purchase = await _purchases.AddAsync(purchase);
+                    _context.PurchaseDetails.Add(f);
+                });
 
-            purchasesConf.LastId = correlative.ToString();
-            await _conf.UpdateAsync(purchasesConf);
+                await _context.SaveChangesAsync();
+            }
 
-            return purchase;
+            return await GetPurchase(result.Entity.Id);
         }
+
 
         public async Task<Purchase> UpdateSalesReport(Purchase purchase)
         {
-            Purchase sr = await _purchases.GetAsync<Purchase>(purchase.Id);
+            Purchase pr = await GetPurchase(purchase.Id);
 
-            if (sr is null)
+            if (pr is null)
             {
                 throw new Exception();
             }
 
-            sr.Description = purchase.Description;
-            sr.Details = purchase.Details;
+            pr.Description = purchase.Description;
+            _context.Entry(pr).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
 
-            return await _purchases.UpdateAsync(sr);
+            pr.Details.ForEach(f =>
+            {
+                _context.PurchaseDetails.Remove(f);
+            });
+            purchase.Details.ForEach(f =>
+            {
+                _context.PurchaseDetails.Add(f);
+            });
+            await _context.SaveChangesAsync();
+
+            return purchase;
         }
+
     }
 }

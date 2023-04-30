@@ -1,4 +1,5 @@
 ﻿
+using DadaRepositories.Contexts;
 using DadaRepositories.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -17,9 +18,9 @@ namespace PurchasesMicroservice.Controllers
     {
         private readonly PurchasesService _service;
 
-        public PurchasesController(IConfiguration configuration)
+        public PurchasesController(DadaDbContext context)
         {
-            _service = new PurchasesService(configuration);
+            _service = new PurchasesService(context);
         }
 
 
@@ -42,7 +43,7 @@ namespace PurchasesMicroservice.Controllers
         /// <param name="id">Id record to find</param>
         /// <returns>Purchases record</returns>
         [HttpGet("{id}")]
-        public async Task<ActionResult<Purchase>> Get(string id)
+        public async Task<ActionResult<Purchase>> Get(int id)
         {
             Purchase sales = await _service.GetPurchase(id);
 

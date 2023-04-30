@@ -1,4 +1,5 @@
-﻿using DadaRepositories.Models;
+﻿using DadaRepositories.Contexts;
+using DadaRepositories.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using System.Collections.Generic;
@@ -13,9 +14,9 @@ namespace WorkOrdersMicroservice.Controllers
     {
         private readonly WorkOrdersService _service;
 
-        public WorkOrdersController(IConfiguration configuration)
+        public WorkOrdersController(DadaDbContext context)
         {
-            _service = new WorkOrdersService(configuration);
+            _service = new WorkOrdersService(context);
         }
 
         // GET: api/workorders
@@ -27,7 +28,7 @@ namespace WorkOrdersMicroservice.Controllers
 
         // GET api/workorders/{id}
         [HttpGet("{id}")]
-        public async Task<ActionResult<WorkOrder>> Get(string id)
+        public async Task<ActionResult<WorkOrder>> Get(int id)
         {
             return Ok(await _service.GetWorkOrder(id));
         }

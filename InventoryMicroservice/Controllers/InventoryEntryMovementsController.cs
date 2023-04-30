@@ -1,4 +1,5 @@
-﻿using DadaRepositories.Models;
+﻿using DadaRepositories.Contexts;
+using DadaRepositories.Models;
 using DadaRepositories.Utilities;
 using InventoryMicroservice.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -16,9 +17,9 @@ namespace InventoryMicroservice.Controllers
     {
         private readonly InventoryMovementsService _service;
 
-        public InventoryEntryMovementsController(IConfiguration configuration)
+        public InventoryEntryMovementsController(DadaDbContext context)
         {
-            _service = new InventoryMovementsService(configuration, InventoryMovementType.Entry);
+            _service = new InventoryMovementsService(context, InventoryMovementType.Entry);
         }
 
         // GET: api/inventory/movements/entry
@@ -30,7 +31,7 @@ namespace InventoryMicroservice.Controllers
 
         // GET api/inventory/movements/entry/{id}
         [HttpGet("{id}")]
-        public async Task<ActionResult<InventoryMovement>> Get(string id)
+        public async Task<ActionResult<InventoryMovement>> Get(int id)
         {
             return Ok(await _service.GetInventoyMovement(id));
         }

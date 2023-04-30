@@ -1,19 +1,20 @@
-﻿using DadaRepositories.Interfaces;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace DadaRepositories.Models
 {
-    public class InvoiceDetail : IBaseFirestoreData
+    public class InvoiceDetail
     {
-        public string Id { get; set; }
+        public int Id { get; set; }
 
-        public string WorkOrderId { get; set; }
+        public int InvoiceId { get; set; }
 
         [Required]
-        public string Code { get; set; }
+        public string ProductId { get; set; }
+
+        public Product Product { get; set; }
 
         [Required, Range(0.01, double.MaxValue)]
-        public int Quantity { get; set; }
+        public double Quantity { get; set; }
 
         [Required, Range(0.01, double.MaxValue)]
         public double UnitPrice { get; set; }

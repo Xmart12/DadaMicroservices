@@ -1,6 +1,8 @@
 ﻿using DadaRepositories;
+using DadaRepositories.Contexts;
 using DadaRepositories.Models;
 using DadaRepositories.Utilities;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -9,50 +11,43 @@ namespace WorkOrdersMicroservice.Services
 {
     public class WorkOrdersService
     {
-        private readonly FirestoreRepository _works;
-        private readonly FirestoreRepository _customers;
-        private readonly FirestoreRepository _conf;
+        private readonly DadaDbContext _context;
 
 
-        public WorkOrdersService(IConfiguration configuration)
+        public WorkOrdersService(DadaDbContext context)
         {
-            string filepath = configuration.GetValue<string>("Settings:FirebaseSettings:FilePath");
-            string projectid = configuration.GetValue<string>("Settings:FirebaseSettings:ProjectId");
-            _works = new FirestoreRepository(filepath, projectid, Collection.WorkOrders);
-            _customers = new FirestoreRepository(filepath, projectid, Collection.Customers);
-            _conf = new FirestoreRepository(filepath, projectid, Collection.Configurations);
+            _context = context;
         }
 
 
-        public async Task<List<WorkOrder>> GetWorkOrders() => await _works.GetAllAsync<WorkOrder>();
+        public async Task<List<WorkOrder>> GetWorkOrders() => await _context.WorkOrders
+            .Include(i => i.Customer).Include(i => i.Details).ThenInclude(i => i.Product)
+            .ToListAsync();
 
 
-        public async Task<WorkOrder> GetWorkOrder(string id) => await _works.GetAsync<WorkOrder>(id);
+        public async Task<WorkOrder> GetWorkOrder(int id) => await _context.WorkOrders
+            .Include(i => i.Customer).Include(i => i.Details).ThenInclude(i => i.Product)
+            .FirstOrDefaultAsync(f => f.Id == id);
 
 
         public async Task<WorkOrder> CreateWorkOrder(WorkOrder work)
         {
-            Configuration workConf = await _conf.GetAsync<Configuration>("WorkOrder");
+            var result = await _context.WorkOrders.AddAsync(work);
+            await _context.SaveChangesAsync();
 
-            int.TryParse(workConf.LastId, out int correlative);
-            correlative++;
-
-            work.Id = correlative.ToString();
-            int detailId = 1;
-            work.Details.ForEach(f =>
+            if (result.State == EntityState.Added)
             {
-                f.WorkOrderId = correlative.ToString();
-                f.Id = detailId.ToString();
-                detailId++;
-            });
+                work.Details.ForEach(f =>
+                {
+                    f.WorkOrderId = result.Entity.Id;
 
-            work = await _works.AddAsync(work);
+                    _context.WorkOrderDetails.Add(f);
+                });
 
-            workConf.LastId = correlative.ToString();
-            await _conf.UpdateAsync(workConf);
+                await _context.SaveChangesAsync();
+            }
 
-            return work;
-
+            return await GetWorkOrder(result.Entity.Id);
         }
 
     }

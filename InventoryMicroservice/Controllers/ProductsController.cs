@@ -1,8 +1,8 @@
-﻿using DadaRepositories.Models;
+﻿using DadaRepositories.Contexts;
+using DadaRepositories.Models;
 using InventoryMicroservice.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -14,9 +14,9 @@ namespace InventoryMicroservice.Controllers
     {
         private readonly ProductsServices _service;
 
-        public ProductsController(IConfiguration configuration)
+        public ProductsController(DadaDbContext context)
         {
-            _service = new ProductsServices(configuration);
+            _service = new ProductsServices(context);
         }
 
         // GET: api/products

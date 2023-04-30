@@ -1,16 +1,18 @@
-﻿using DadaRepositories.Interfaces;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace DadaRepositories.Models
 {
-    public class InventoryMovementDetail : IBaseFirestoreData
+    public class InventoryMovementDetail
     {
-        public string Id { get; set; }
-
-        public string InventoryMovementId { get; set; }
+        public int Id { get; set; }
 
         [Required]
-        public string Code { get; set; }
+        public int InventoryMovementId { get; set; }
+
+        [Required]
+        public int ProductId { get; set; }
+
+        public Product Product { get; set; }
 
         [Required, Range(0.01, double.MaxValue)]
         public int Quantity { get; set; }

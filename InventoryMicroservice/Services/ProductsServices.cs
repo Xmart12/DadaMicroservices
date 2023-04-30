@@ -1,54 +1,65 @@
-﻿using DadaRepositories;
+﻿using DadaRepositories.Contexts;
 using DadaRepositories.Models;
-using DadaRepositories.Utilities;
-using Microsoft.Extensions.Configuration;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace InventoryMicroservice.Services
 {
     public class ProductsServices
     {
-        private readonly FirestoreRepository _product;
+        private readonly DadaDbContext _context;
 
-        public ProductsServices(IConfiguration configuration)
+        public ProductsServices(DadaDbContext context)
         {
-            string filepath = configuration.GetValue<string>("Settings:FirebaseSettings:FilePath");
-            string projectid = configuration.GetValue<string>("Settings:FirebaseSettings:ProjectId");
-            _product = new FirestoreRepository(filepath, projectid, Collection.Products);
+            _context = context;
         }
 
 
-        public async Task<List<Product>> GetProducts() => await _product.GetAllAsync<Product>();
+        public async Task<List<Product>> GetProducts() => await _context.Products.AsQueryable()
+            .ToListAsync();
 
-        public async Task<Product> GetProduct(string id) => await _product.GetAsync<Product>(id);
+
+        public async Task<Product> GetProduct(string id) => await _context.Products.AsQueryable()
+            .FirstOrDefaultAsync(p => p.Id == id);
+
 
         public async Task<Product> CreateProduct(Product product)
         {
-            product.Id = product.Code;
-
             if ((await GetProduct(product.Id)) != null)
             {
                 throw new Exception();
             }
 
-            return await _product.AddAsync(product);
-        }
+            var res = await _context.Products.AddAsync(product);
+            await _context.SaveChangesAsync();
 
-        public async Task<Product> UpdateProduct(Product product)
-        {
-            Product sr = await _product.GetAsync<Product>(product.Id);
-
-            if (sr is null)
+            if (res.State != EntityState.Added)
             {
                 throw new Exception();
             }
 
-            sr.Description = product.Description;
-            sr.Cost = product.Cost;
+            return res.Entity;
+        }
 
-            return await _product.UpdateAsync(sr);
+
+        public async Task<Product> UpdateProduct(Product product)
+        {
+            Product pr = await GetProduct(product.Id);
+
+            if (pr is null)
+            {
+                throw new Exception();
+            }
+
+            pr.Description = product.Description;
+            pr.Cost = product.Cost;
+            _context.Entry(pr).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
+
+            return pr;
         }
     }
 }

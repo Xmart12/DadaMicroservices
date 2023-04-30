@@ -1,14 +1,13 @@
 ﻿using DadaRepositories.Attributes;
-using DadaRepositories.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace DadaRepositories.Models
 {
-    public class Purchase : IBaseFirestoreData
+    public class Purchase
     {
-        public string Id { get; set; }
+        public int Id { get; set; }
 
         [Required, DataType(DataType.Date), DisplayFormat(DataFormatString = "yyyy-MM-dd")]
         public DateTime Date { get; set; }

@@ -1,4 +1,5 @@
-﻿using DadaRepositories.Models;
+﻿using DadaRepositories.Contexts;
+using DadaRepositories.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using SalesMicroservice.Services;
@@ -25,9 +26,9 @@ namespace SalesMicroservice.Controllers
         /// Constructor
         /// </summary>
         /// <param name="configuration">Configuration interface</param>
-        public SalesReportController(IConfiguration configuration)
+        public SalesReportController(DadaDbContext context)
         {
-            _service = new SalesReportService(configuration);
+            _service = new SalesReportService(context);
         }
 
 
@@ -50,7 +51,7 @@ namespace SalesMicroservice.Controllers
         /// <param name="id">Id record to find</param>
         /// <returns>Sales report record</returns>
         [HttpGet("{id}")]
-        public async Task<ActionResult<SalesReport>> Get(string id)
+        public async Task<ActionResult<SalesReport>> Get(int id)
         {
             SalesReport sales = await _service.GetSalesReport(id);
 

@@ -4,7 +4,6 @@ namespace DadaRepositories.Models
 {
     public class SalesReportDetail
     {
-        [Required]
         public int Id { get; set; }
 
         [Required]
@@ -14,7 +13,9 @@ namespace DadaRepositories.Models
         public int Line { get; set; }
 
         [Required]
-        public string Code { get; set; }
+        public string ProductId { get; set; }
+
+        public Product Product { get; set; }
 
         public string Description { get; set; }
 

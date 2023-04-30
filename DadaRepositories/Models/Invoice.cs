@@ -1,16 +1,16 @@
-﻿using DadaRepositories.Interfaces;
+﻿using DadaRepositories.Attributes;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace DadaRepositories.Models
 {
-    public class Invoice : IBaseFirestoreData
+    public class Invoice
     {
-        public string Id { get; set; }
+        public int Id { get; set; }
 
         [Required]
-        public string ClientDocument { get; set; }
+        public string CustomerId { get; set; }
 
         public Customer Customer { get; set; }
 
@@ -19,6 +19,7 @@ namespace DadaRepositories.Models
 
         public string Description { get; set; }
 
+        [Required, MustHaveOne(ErrorMessage = "At least one detail item is required")]
         public List<InvoiceDetail> Details { get; set; }
     }
 }

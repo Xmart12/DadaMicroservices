@@ -1,7 +1,6 @@
-﻿using DadaRepositories;
+﻿using DadaRepositories.Contexts;
 using DadaRepositories.Models;
-using DadaRepositories.Utilities;
-using Microsoft.Extensions.Configuration;
+using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -9,49 +8,42 @@ namespace InvoicesMicroservice.Services
 {
     public class InvoicesService
     {
-        private readonly FirestoreRepository _invoice;
-        private readonly FirestoreRepository _customers;
-        private readonly FirestoreRepository _conf;
+        private readonly DadaDbContext _context;
 
-        public InvoicesService(IConfiguration configuration)
+        public InvoicesService(DadaDbContext context)
         {
-            string filepath = configuration.GetValue<string>("Settings:FirebaseSettings:FilePath");
-            string projectid = configuration.GetValue<string>("Settings:FirebaseSettings:ProjectId");
-            _invoice = new FirestoreRepository(filepath, projectid, Collection.Invoices);
-            _customers = new FirestoreRepository(filepath, projectid, Collection.Customers);
-            _conf = new FirestoreRepository(filepath, projectid, Collection.Configurations);
+            _context = context;
         }
 
 
-        public async Task<List<Invoice>> GetInvoices() => await _invoice.GetAllAsync<Invoice>();
+        public async Task<List<Invoice>> GetInvoices() => await _context.Invoices
+            .Include(i => i.Customer).Include(i => i.Details).ThenInclude(i => i.Product)
+            .ToListAsync();
 
 
-        public async Task<Invoice> GetInvoice(string id) => await _invoice.GetAsync<Invoice>(id);
+        public async Task<Invoice> GetInvoice(int id) => await _context.Invoices
+            .Include(i => i.Customer).Include(i => i.Details).ThenInclude(i => i.Product)
+            .FirstOrDefaultAsync(f => f.Id == id);
 
 
         public async Task<Invoice> CreateInvoice(Invoice invoice)
         {
-            Configuration invConf = await _conf.GetAsync<Configuration>("Invoice");
+            var result = await _context.Invoices.AddAsync(invoice);
+            await _context.SaveChangesAsync();
 
-            int.TryParse(invConf.LastId, out int correlative);
-            correlative++;
-
-            invoice.Id = correlative.ToString();
-            int detailId = 1;
-            invoice.Details.ForEach(f =>
+            if (result.State == EntityState.Added)
             {
-                f.WorkOrderId = correlative.ToString();
-                f.Id = detailId.ToString();
-                detailId++;
-            });
+                invoice.Details.ForEach(f =>
+                {
+                    f.InvoiceId = result.Entity.Id;
 
-            invoice = await _invoice.AddAsync(invoice);
+                    _context.InvoiceDetails.Add(f);
+                });
 
-            invConf.LastId = correlative.ToString();
-            await _conf.UpdateAsync(invConf);
+                await _context.SaveChangesAsync();
+            }
 
-            return invoice;
-
+            return await GetInvoice(result.Entity.Id);
         }
     }
 }
