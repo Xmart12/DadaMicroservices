@@ -64,11 +64,11 @@ namespace PurchasesMicroservice.Controllers
         [HttpPost]
         public async Task<ActionResult<Purchase>> Post([FromBody] Purchase sales)
         {
-            Purchase added = await _service.CreatePurchase(sales);
+            (Purchase added, string message) = await _service.CreatePurchase(sales);
 
             if (added is null)
             {
-                return BadRequest();
+                return BadRequest(message);
             }
 
             return Ok(added);

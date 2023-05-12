@@ -37,26 +37,15 @@ namespace WorkOrdersMicroservice.Controllers
         [HttpPost]
         public async Task<ActionResult<WorkOrder>> Post([FromBody] WorkOrder work)
         {
-            WorkOrder added = await _service.CreateWorkOrder(work);
+            (WorkOrder added, string message) = await _service.CreateWorkOrder(work);
 
             if (added is null)
             {
-                return BadRequest();
+                return BadRequest(message);
             }
 
             return Ok(added);
         }
 
-        // PUT api/workorders/{id}
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
-        {
-        }
-
-        // DELETE api/workorders/{id}
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
-        }
     }
 }

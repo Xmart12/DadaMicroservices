@@ -10,12 +10,12 @@ namespace DadaRepositories.Models
         public int InventoryMovementId { get; set; }
 
         [Required]
-        public int ProductId { get; set; }
+        public string ProductId { get; set; }
 
         public Product Product { get; set; }
 
         [Required, Range(0.01, double.MaxValue)]
-        public int Quantity { get; set; }
+        public double Quantity { get; set; }
 
         [Required, Range(0.01, double.MaxValue)]
         public double UnitCost { get; set; }

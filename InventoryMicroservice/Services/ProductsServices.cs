@@ -26,11 +26,14 @@ namespace InventoryMicroservice.Services
             .FirstOrDefaultAsync(p => p.Id == id);
 
 
-        public async Task<Product> CreateProduct(Product product)
+        public async Task<(Product, string)> CreateProduct(Product product)
         {
+            string message = null;
+
             if ((await GetProduct(product.Id)) != null)
             {
-                throw new Exception();
+                message = "Product already exists";
+                return (null, message);
             }
 
             var res = await _context.Products.AddAsync(product);
@@ -38,20 +41,24 @@ namespace InventoryMicroservice.Services
 
             if (res.State != EntityState.Added)
             {
-                throw new Exception();
+                message = "Unable to create product";
+                return (null, message);
             }
 
-            return res.Entity;
+            return (res.Entity, message);
         }
 
 
-        public async Task<Product> UpdateProduct(Product product)
+        public async Task<(Product, string)> UpdateProduct(Product product)
         {
+            string message = null;
+
             Product pr = await GetProduct(product.Id);
 
             if (pr is null)
             {
-                throw new Exception();
+                message = "Product not found";
+                return (null, message);
             }
 
             pr.Description = product.Description;
@@ -59,7 +66,7 @@ namespace InventoryMicroservice.Services
             _context.Entry(pr).State = EntityState.Modified;
             await _context.SaveChangesAsync();
 
-            return pr;
+            return (pr, message);
         }
     }
 }

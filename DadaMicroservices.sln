@@ -13,7 +13,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PurchasesMicroservice", "Pu
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WorkOrdersMicroservice", "WorkOrdersMicroservice\WorkOrdersMicroservice.csproj", "{FD8AA1ED-409A-48B3-8AE2-4A94CDCCA1D8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InvoicesMicroservice", "InvoicesMicroservice\InvoicesMicroservice.csproj", "{AD339ABA-80BE-439E-A131-BA927A76127B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InvoicesMicroservice", "InvoicesMicroservice\InvoicesMicroservice.csproj", "{AD339ABA-80BE-439E-A131-BA927A76127B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

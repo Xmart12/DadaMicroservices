@@ -72,26 +72,29 @@ namespace SalesMicroservice.Controllers
         [HttpPost]
         public async Task<ActionResult<SalesReport>> Post([FromBody] SalesReport sales)
         {
-            SalesReport added = await _service.CreateSalesReport(sales);
+            (SalesReport added, string message) = await _service.CreateSalesReport(sales);
 
             if (added is null)
             {
-                return BadRequest();
+                return BadRequest(message);
             }
 
             return Ok(added);
         }
 
-        // PUT api/<SalesReportController>/5
+        // PUT api/salesreport/{id}
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+        public async Task<ActionResult<SalesReport>> Put(int id, [FromBody] SalesReport sales)
         {
+            (SalesReport updated, string message) = await _service.UpdateSalesReport(sales);
+
+            if (updated is null)
+            {
+                return BadRequest(message);
+            }
+
+            return Ok(updated);
         }
 
-        // DELETE api/<SalesReportController>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
-        }
     }
 }

@@ -3,6 +3,7 @@ using DadaRepositories.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace PurchasesMicroservice.Services
@@ -27,8 +28,32 @@ namespace PurchasesMicroservice.Services
             .FirstOrDefaultAsync(f => f.Id == id);
 
 
-        public async Task<Purchase> CreatePurchase(Purchase purchase)
+        public async Task<(Purchase, string)> CreatePurchase(Purchase purchase)
         {
+            string message = null;
+
+            if (purchase.Date > DateTime.Today)
+            {
+                message = "Date not valid";
+                return (null, message);
+            }
+
+            purchase.Details.ForEach(f =>
+            {
+                Product prod = _context.Products.FirstOrDefault(p => p.Id == f.ProductId);
+
+                if (prod == null)
+                {
+                    message = $"The item {f.ProductId} is not found";
+                    return;
+                }
+            });
+
+            if (message != null)
+            {
+                return (null, message);
+            }
+
             var result = await _context.Purchases.AddAsync(purchase);
             await _context.SaveChangesAsync();
 
@@ -44,17 +69,36 @@ namespace PurchasesMicroservice.Services
                 await _context.SaveChangesAsync();
             }
 
-            return await GetPurchase(result.Entity.Id);
+            return (await GetPurchase(result.Entity.Id), null);
         }
 
 
-        public async Task<Purchase> UpdateSalesReport(Purchase purchase)
+        public async Task<(Purchase, string)> UpdateSalesReport(Purchase purchase)
         {
+            string message = null;
+
             Purchase pr = await GetPurchase(purchase.Id);
 
             if (pr is null)
             {
-                throw new Exception();
+                message = "Purchase not found";
+                return (null, message);
+            }
+
+            purchase.Details.ForEach(f =>
+            {
+                Product prod = _context.Products.FirstOrDefault(p => p.Id == f.ProductId);
+
+                if (prod == null)
+                {
+                    message = $"The item {f.ProductId} is not found";
+                    return;
+                }
+            });
+
+            if (message != null)
+            {
+                return (null, message);
             }
 
             pr.Description = purchase.Description;
@@ -71,7 +115,7 @@ namespace PurchasesMicroservice.Services
             });
             await _context.SaveChangesAsync();
 
-            return purchase;
+            return (purchase, null);
         }
 
     }

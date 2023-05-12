@@ -34,9 +34,42 @@ namespace InventoryMicroservice.Services
             .FirstOrDefaultAsync(f => f.Type == _type.ToString() && f.Id == id);
         
 
-        public async Task<InventoryMovement> CreateInventoryMovement(InventoryMovement movement)
+        public async Task<(InventoryMovement, string)> CreateInventoryMovement(InventoryMovement movement)
         {
+            string message = null;
+
             movement.Type = _type.ToString();
+
+            if (movement.Date > DateTime.Today)
+            {
+                message = "Date not valid";
+                return (null, message);
+            }
+
+            movement.Details.ForEach(f =>
+            {
+                Product prod = _context.Products.FirstOrDefault(p => p.Id == f.ProductId);
+
+                if (prod == null)
+                {
+                    message = $"The item {f.ProductId} not found";
+                    return;
+                }
+
+                if (movement.Type == InventoryMovementType.Out.ToString())
+                {
+                    if (f.Quantity > prod.Availability)
+                    {
+                        message = $"The item {f.ProductId} is out of stock";
+                        return;
+                    }
+                }
+            });
+
+            if (message != null)
+            {
+                return (null, message);
+            }
 
             var result = await _context.InventoryMovements.AddAsync(movement);
             await _context.SaveChangesAsync();
@@ -53,17 +86,51 @@ namespace InventoryMicroservice.Services
                 await _context.SaveChangesAsync();
             }
 
-            return await GetInventoyMovement(result.Entity.Id);
+            return (await GetInventoyMovement(result.Entity.Id), message);
         }
         
 
-        public async Task<InventoryMovement> UpdateInventoryMovement(InventoryMovement movement)
+        public async Task<(InventoryMovement, string)> UpdateInventoryMovement(InventoryMovement movement)
         {
+            string message = null;
+
             InventoryMovement im = await GetInventoyMovement(movement.Id);
 
             if (im is null)
             {
-                throw new Exception();
+                message = "Inventory movement not found";
+                return (null, message);
+            }
+
+            if (movement.Date > DateTime.Today)
+            {
+                message = "Date not valid";
+                return (null, message);
+            }
+
+            movement.Details.ForEach(f =>
+            {
+                Product prod = _context.Products.FirstOrDefault(p => p.Id == f.ProductId);
+
+                if (prod == null)
+                {
+                    message = $"The item {f.ProductId} not found";
+                    return;
+                }
+
+                if (movement.Type == InventoryMovementType.Out.ToString())
+                {
+                    if (f.Quantity > prod.Availability)
+                    {
+                        message = $"The item {f.ProductId} is out of stock";
+                        return;
+                    }
+                }
+            });
+
+            if (message != null)
+            {
+                return (null, message);
             }
 
             im.Description = movement.Description;
@@ -80,7 +147,7 @@ namespace InventoryMicroservice.Services
             });
             await _context.SaveChangesAsync();
 
-            return movement;
+            return (movement, message);
         }
 
     }

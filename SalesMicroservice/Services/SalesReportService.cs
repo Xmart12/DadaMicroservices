@@ -27,16 +27,21 @@ namespace SalesMicroservice.Services
             .FirstOrDefaultAsync(s => s.Id == id);
 
 
-        public async Task<SalesReport> CreateSalesReport(SalesReport sales)
+        public async Task<(SalesReport, string)> CreateSalesReport(SalesReport sales)
         {
+            //set message
+            string message = null;
+
             if (sales.CustomerId is null)
             {
                 if (sales.Customer is null)
                 {
-                    throw new Exception();
+                    message = "Customer not found";
+                    return (null, message);
                 }
 
-                if ((await _context.Customers.AsQueryable().FirstOrDefaultAsync(c => c.Id == sales.Customer.Document)) is null)
+                if ((await _context.Customers.AsQueryable()
+                    .FirstOrDefaultAsync(c => c.Id == sales.Customer.Document)) is null)
                 {
                     sales.Customer.Id = sales.Customer.Document;
                     sales.CustomerId = sales.Customer.Document;
@@ -52,8 +57,31 @@ namespace SalesMicroservice.Services
 
                 if (sales.Customer is null)
                 {
-                    throw new Exception();
+                    message = "Unable to create customer";
+                    return (null, message);
                 }
+            }
+
+            if (sales.Date > DateTime.Today)
+            {
+                message = "Date is not valid";
+                return (null, message);
+            }
+
+            sales.Details.ForEach(f =>
+            {
+                Product prod = _context.Products.FirstOrDefault(p => p.Id == f.ProductId);
+
+                if (prod == null)
+                {
+                    message = $"The item {f.ProductId} cannot be found";
+                    return;
+                }
+            });
+
+            if (message != null)
+            {
+                return (null, message);
             }
 
             var result = await _context.SalesReports.AddAsync(sales);
@@ -71,18 +99,31 @@ namespace SalesMicroservice.Services
                 await _context.SaveChangesAsync();
             }
 
-            return await GetSalesReport(result.Entity.Id);
+            return (await GetSalesReport(result.Entity.Id), null);
         }
 
 
-        public async Task<SalesReport> UpdateSalesReport(SalesReport sales)
+        public async Task<(SalesReport, string)> UpdateSalesReport(SalesReport sales)
         {
+            string message = null;
+
             SalesReport sr = await GetSalesReport(sales.Id);
 
             if (sr is null)
             {
-                throw new Exception();
+                message = "Sales report not found";
             }
+
+            sales.Details.ForEach(f =>
+            {
+                Product prod = _context.Products.FirstOrDefault(p => p.Id == f.ProductId);
+
+                if (prod == null)
+                {
+                    message = $"The item {f.ProductId} cannot be found";
+                    return;
+                }
+            });
 
             sr.Description = sales.Description;
             _context.Entry(sr).State = EntityState.Modified;
@@ -98,7 +139,7 @@ namespace SalesMicroservice.Services
             });
             await _context.SaveChangesAsync();
 
-            return sales;
+            return (sales, null);
         }
 
     }

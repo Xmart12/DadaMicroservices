@@ -6,6 +6,7 @@ namespace DadaRepositories.Models
     {
         public int Id { get; set; }
 
+        [Required]
         public int WorkOrderId { get; set; }
 
         [Required]
@@ -14,7 +15,7 @@ namespace DadaRepositories.Models
         public Product Product { get; set; }
 
         [Required, Range(0.01, double.MaxValue)]
-        public int Quantity { get; set; }
+        public double Quantity { get; set; }
 
         [Required, Range(0.01, double.MaxValue)]
         public double UnitCost { get; set; }

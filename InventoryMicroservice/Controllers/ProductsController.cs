@@ -45,11 +45,11 @@ namespace InventoryMicroservice.Controllers
         [HttpPost]
         public async Task<ActionResult<Product>> Post([FromBody] Product product)
         {
-            Product added = await _service.CreateProduct(product);
+            (Product added, string message) = await _service.CreateProduct(product);
 
             if (added is null)
             {
-                return BadRequest();
+                return BadRequest(message);
             }
 
             return Ok(added);

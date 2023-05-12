@@ -1,7 +1,9 @@
 ﻿using DadaRepositories.Contexts;
 using DadaRepositories.Models;
 using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace InvoicesMicroservice.Services
@@ -26,8 +28,40 @@ namespace InvoicesMicroservice.Services
             .FirstOrDefaultAsync(f => f.Id == id);
 
 
-        public async Task<Invoice> CreateInvoice(Invoice invoice)
+        public async Task<(Invoice, string)> CreateInvoice(Invoice invoice)
         {
+            string message = null;
+
+            Customer cus = _context.Customers.FirstOrDefault(f => f.Id == invoice.CustomerId);
+
+            if (cus == null)
+            {
+                message = "Customer not found";
+                return (null, message);
+            }
+
+            if (invoice.Date > DateTime.Today)
+            {
+                message = "Date not valid";
+                return (null, message);
+            }
+
+            invoice.Details.ForEach(f =>
+            {
+                Product prod = _context.Products.FirstOrDefault(p => p.Id == f.ProductId);
+
+                if (prod == null)
+                {
+                    message = $"The item {f.ProductId} not found";
+                    return;
+                }
+            });
+
+            if (message != null)
+            {
+                return (null, message);
+            }
+
             var result = await _context.Invoices.AddAsync(invoice);
             await _context.SaveChangesAsync();
 
@@ -43,7 +77,7 @@ namespace InvoicesMicroservice.Services
                 await _context.SaveChangesAsync();
             }
 
-            return await GetInvoice(result.Entity.Id);
+            return (await GetInvoice(result.Entity.Id), message);
         }
     }
 }

@@ -40,11 +40,11 @@ namespace InventoryMicroservice.Controllers
         [HttpPost]
         public async Task<ActionResult<InventoryMovement>> Post([FromBody] InventoryMovement movement)
         {
-            InventoryMovement added = await _service.CreateInventoryMovement(movement);
+            (InventoryMovement added, string message) = await _service.CreateInventoryMovement(movement);
 
             if (added is null)
             {
-                return BadRequest();
+                return BadRequest(message);
             }
 
             return Ok(added);
@@ -52,14 +52,16 @@ namespace InventoryMicroservice.Controllers
 
         // PUT api/<InventoryEntryMovementController>/5
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+        public async Task<ActionResult<InventoryMovement>> Put(int id, [FromBody] InventoryMovement movement)
         {
-        }
+            (InventoryMovement updated, string message) = await _service.UpdateInventoryMovement(movement);
 
-        // DELETE api/<InventoryEntryMovementController>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
+            if (updated is null)
+            {
+                return BadRequest(message);
+            }
+
+            return Ok(updated);
         }
     }
 }

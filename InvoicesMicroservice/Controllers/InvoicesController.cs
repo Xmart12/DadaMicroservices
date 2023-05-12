@@ -38,26 +38,14 @@ namespace InvoicesMicroservice.Controllers
         [HttpPost]
         public async Task<ActionResult<Invoice>> Post([FromBody] Invoice invoice)
         {
-            Invoice added = await _service.CreateInvoice(invoice);
+            (Invoice added, string message) = await _service.CreateInvoice(invoice);
 
             if (added is null)
             {
-                return BadRequest();
+                return BadRequest(message);
             }
 
             return Ok(added);
-        }
-
-        // PUT api/invoices/{id}
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
-        {
-        }
-
-        // DELETE api/invoices/{id}
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
         }
     }
 }

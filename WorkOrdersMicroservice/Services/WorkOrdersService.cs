@@ -4,7 +4,9 @@ using DadaRepositories.Models;
 using DadaRepositories.Utilities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace WorkOrdersMicroservice.Services
@@ -30,8 +32,40 @@ namespace WorkOrdersMicroservice.Services
             .FirstOrDefaultAsync(f => f.Id == id);
 
 
-        public async Task<WorkOrder> CreateWorkOrder(WorkOrder work)
+        public async Task<(WorkOrder, string)> CreateWorkOrder(WorkOrder work)
         {
+            string message = null;
+
+            Customer cus = _context.Customers.FirstOrDefault(f => f.Id == work.CustomerId);
+
+            if (cus == null)
+            {
+                message = "Customer not found";
+                return (null, message);
+            }
+            
+            if (work.Date > DateTime.Today)
+            {
+                message = "Date not valid";
+                return (null, message);
+            }
+
+            work.Details.ForEach(f =>
+            {
+                Product prod = _context.Products.FirstOrDefault(p => p.Id == f.ProductId);
+
+                if (prod == null)
+                {
+                    message = $"The item {f.ProductId} not found";
+                    return;
+                }
+            });
+
+            if (message != null)
+            {
+                return (null, message);
+            }
+
             var result = await _context.WorkOrders.AddAsync(work);
             await _context.SaveChangesAsync();
 
@@ -47,7 +81,7 @@ namespace WorkOrdersMicroservice.Services
                 await _context.SaveChangesAsync();
             }
 
-            return await GetWorkOrder(result.Entity.Id);
+            return (await GetWorkOrder(result.Entity.Id), message);
         }
 
     }
